@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | OX Connections</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/protect.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="margin:0;">🔌 OX Connections - Inventory Management</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- NAVBAR -->
+  <div style="margin:20px; background:#fff; padding:15px; border-radius:10px;">
+    <a href="dashboard.html">Dashboard</a> |
+    <a href="products.html">Products</a> |
+    <a href="orders.html">Orders</a> |
+    <a href="customers.html">Customers</a> |
+    <a href="suppliers.html">Suppliers</a> |
+    <a href="reports.html">Reports</a>
+  </div>
+
+  <!-- CONTENT -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Dashboard Overview</h3>
+
+    <div id="stats" style="display:flex; gap:20px; flex-wrap:wrap;">
+      <div class="card">Total Products: <span id="totalProducts">0</span></div>
+      <div class="card">Low Stock Items: <span id="lowStock">0</span></div>
+      <div class="card">Pending Orders: <span id="pendingOrders">0</span></div>
+      <div class="card">Completed Orders: <span id="completedOrders">0</span></div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    fetch("http://localhost:5000/api/reports")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("totalProducts").innerText = data.totalProducts;
+        document.getElementById("lowStock").innerText = data.lowStockCount;
+        document.getElementById("pendingOrders").innerText = data.pendingOrders;
+        document.getElementById("completedOrders").innerText = data.completedOrders;
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Suppliers | OX Connections</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/protect.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
+    <h2>🚚 Suppliers</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- NAV -->
+  <div style="margin:20px; background:#fff; padding:15px; border-radius:10px;">
+    <a href="dashboard.html">Dashboard</a> |
+    <a href="products.html">Products</a> |
+    <a href="orders.html">Orders</a> |
+    <a href="customers.html">Customers</a> |
+    <a href="suppliers.html">Suppliers</a> |
+    <a href="reports.html">Reports</a>
+  </div>
+
+  <!-- ADD SUPPLIER -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Add Supplier</h3>
+
+    <input id="supplierName" placeholder="Supplier Name" />
+    <input id="country" placeholder="Country" />
+    <input id="contactPerson" placeholder="Contact Person" />
+    <input id="email" placeholder="Email" />
+    <input id="phone" placeholder="Phone" />
+
+    <br><br>
+    <button onclick="addSupplier()">Add Supplier</button>
+  </div>
+
+  <!-- SUPPLIER LIST -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Supplier List</h3>
+    <table border="1" width="100%" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Supplier</th>
+          <th>Country</th>
+          <th>Contact</th>
+          <th>Email</th>
+          <th>Phone</th>
+        </tr>
+      </thead>
+      <tbody id="supplierTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    function loadSuppliers() {
+      fetch("http://localhost:5000/api/suppliers")
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("supplierTable");
+          table.innerHTML = "";
+          data.forEach(s => {
+            table.innerHTML += `
+              <tr>
+                <td>${s.supplierName}</td>
+                <td>${s.country}</td>
+                <td>${s.contactPerson}</td>
+                <td>${s.email}</td>
+                <td>${s.phone}</td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    function addSupplier() {
+      const supplier = {
+        supplierName: supplierName.value,
+        country: country.value,
+        contactPerson: contactPerson.value,
+        email: email.value,
+        phone: phone.value
+      };
+
+      fetch("http://localhost:5000/api/suppliers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(supplier)
+      })
+      .then(() => {
+        loadSuppliers();
+        supplierName.value = country.value = contactPerson.value = email.value = phone.value = "";
+      });
+    }
+
+    loadSuppliers();
+  </script>
+</body>
+</html>

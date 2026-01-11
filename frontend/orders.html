@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Orders | OX Connections</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/protect.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
+    <h2>🧾 Orders</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- NAV -->
+  <div style="margin:20px; background:#fff; padding:15px; border-radius:10px;">
+    <a href="dashboard.html">Dashboard</a> |
+    <a href="products.html">Products</a> |
+    <a href="orders.html">Orders</a> |
+    <a href="customers.html">Customers</a> |
+    <a href="suppliers.html">Suppliers</a> |
+    <a href="reports.html">Reports</a>
+  </div>
+
+  <!-- ADD ORDER -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Create Order</h3>
+
+    <input id="orderId" placeholder="Order ID (e.g. ORD-1)" />
+    <input id="customer" placeholder="Customer Name" />
+    <input id="date" type="date" />
+    <input id="totalAmount" type="number" placeholder="Total Amount" />
+
+    <select id="status">
+      <option value="Pending">Pending</option>
+      <option value="Processing">Processing</option>
+      <option value="Completed">Completed</option>
+    </select>
+
+    <br><br>
+    <button onclick="addOrder()">Add Order</button>
+  </div>
+
+  <!-- ORDER LIST -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Order List</h3>
+    <table border="1" width="100%" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Total (₹)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="orderTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    function loadOrders() {
+      fetch("http://localhost:5000/api/orders")
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("orderTable");
+          table.innerHTML = "";
+          data.forEach(o => {
+            table.innerHTML += `
+              <tr>
+                <td>${o.orderId}</td>
+                <td>${o.customer}</td>
+                <td>${o.date}</td>
+                <td>₹${o.totalAmount}</td>
+                <td>${o.status}</td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    function addOrder() {
+      const order = {
+        orderId: orderId.value,
+        customer: customer.value,
+        date: date.value,
+        totalAmount: totalAmount.value,
+        status: status.value
+      };
+
+      fetch("http://localhost:5000/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order)
+      })
+      .then(() => {
+        loadOrders();
+        orderId.value = customer.value = date.value = totalAmount.value = "";
+        status.value = "Pending";
+      });
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

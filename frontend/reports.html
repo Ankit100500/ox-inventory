@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reports | OX Connections</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/protect.js"></script>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
+    <h2>📊 Reports</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- NAV -->
+  <div style="margin:20px; background:#fff; padding:15px; border-radius:10px;">
+    <a href="dashboard.html">Dashboard</a> |
+    <a href="products.html">Products</a> |
+    <a href="orders.html">Orders</a> |
+    <a href="customers.html">Customers</a> |
+    <a href="suppliers.html">Suppliers</a> |
+    <a href="reports.html">Reports</a>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div style="margin:20px; display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card">Total Revenue<br>₹ <span id="totalRevenue">0</span></div>
+    <div class="card">Total Products<br><span id="totalProducts">0</span></div>
+    <div class="card">Low Stock Items<br><span id="lowStockCount">0</span></div>
+    <div class="card">Pending Orders<br><span id="pendingOrders">0</span></div>
+    <div class="card">Completed Orders<br><span id="completedOrders">0</span></div>
+  </div>
+
+  <!-- LOW STOCK TABLE -->
+  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
+    <h3>Low Stock Products</h3>
+    <table border="1" width="100%" cellpadding="10">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Brand</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody id="lowStockTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("token");
+      window.location.href = "login.html";
+    }
+
+    fetch("http://localhost:5000/api/reports")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("totalRevenue").innerText = data.totalRevenue;
+        document.getElementById("totalProducts").innerText = data.totalProducts;
+        document.getElementById("lowStockCount").innerText = data.lowStockCount;
+        document.getElementById("pendingOrders").innerText = data.pendingOrders;
+        document.getElementById("completedOrders").innerText = data.completedOrders;
+
+        const table = document.getElementById("lowStockTable");
+        table.innerHTML = "";
+        data.lowStockProducts.forEach(p => {
+          table.innerHTML += `
+            <tr>
+              <td>${p.name}</td>
+              <td>${p.category}</td>
+              <td>${p.brand}</td>
+              <td>${p.stock}</td>
+            </tr>
+          `;
+        });
+      });
+  </script>
+</body>
+</html>
