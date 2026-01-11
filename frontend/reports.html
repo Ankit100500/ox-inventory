@@ -52,7 +52,6 @@
 
   <script>
     const API_BASE = "https://ox-inventory-1.onrender.com";
-    const token = localStorage.getItem("token");
 
     function logout() {
       localStorage.removeItem("token");
@@ -61,37 +60,37 @@
 
     fetch(`${API_BASE}/api/reports`, {
       headers: {
-        "Authorization": "Bearer " + token
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
       }
     })
-    .then(res => {
-      if (!res.ok) throw new Error();
-      return res.json();
-    })
-    .then(data => {
-      document.getElementById("totalRevenue").innerText = data.totalRevenue;
-      document.getElementById("totalProducts").innerText = data.totalProducts;
-      document.getElementById("lowStockCount").innerText = data.lowStockCount;
-      document.getElementById("pendingOrders").innerText = data.pendingOrders;
-      document.getElementById("completedOrders").innerText = data.completedOrders;
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        document.getElementById("totalRevenue").innerText = data.totalRevenue;
+        document.getElementById("totalProducts").innerText = data.totalProducts;
+        document.getElementById("lowStockCount").innerText = data.lowStockCount;
+        document.getElementById("pendingOrders").innerText = data.pendingOrders;
+        document.getElementById("completedOrders").innerText = data.completedOrders;
 
-      const table = document.getElementById("lowStockTable");
-      table.innerHTML = "";
+        const table = document.getElementById("lowStockTable");
+        table.innerHTML = "";
 
-      data.lowStockProducts.forEach(p => {
-        table.innerHTML += `
-          <tr>
-            <td>${p.name}</td>
-            <td>${p.category}</td>
-            <td>${p.brand}</td>
-            <td>${p.stock}</td>
-          </tr>
-        `;
+        data.lowStockProducts.forEach(p => {
+          table.innerHTML += `
+            <tr>
+              <td>${p.name}</td>
+              <td>${p.category}</td>
+              <td>${p.brand}</td>
+              <td>${p.stock}</td>
+            </tr>
+          `;
+        });
+      })
+      .catch(() => {
+        alert("Failed to load reports");
       });
-    })
-    .catch(() => {
-      alert("Failed to load reports");
-    });
   </script>
 
 </body>

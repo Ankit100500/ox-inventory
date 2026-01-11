@@ -57,25 +57,21 @@
   </div>
 
   <script>
-    const API_BASE = "https://ox-inventory-1.onrender.com";
-    const token = localStorage.getItem("token");
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
 
-    function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "login.html";
-    }
-
-    function loadCustomers() {
-      fetch(`${API_BASE}/api/customers`, {
-        headers: {
-          "Authorization": "Bearer " + token
-        }
-      })
+  function loadCustomers() {
+    fetch("https://ox-inventory-1.onrender.com/api/customers", {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      }
+    })
       .then(res => res.json())
       .then(data => {
         const table = document.getElementById("customerTable");
         table.innerHTML = "";
-
         data.forEach(c => {
           table.innerHTML += `
             <tr>
@@ -87,48 +83,35 @@
             </tr>
           `;
         });
-      })
-      .catch(() => {
-        alert("Failed to load customers");
       });
-    }
+  }
 
-    function addCustomer() {
-      const customer = {
-        companyName: companyName.value,
-        contactPerson: contactPerson.value,
-        email: email.value,
-        phone: phone.value,
-        city: city.value
-      };
+  function addCustomer() {
+    const customer = {
+      companyName: companyName.value,
+      contactPerson: contactPerson.value,
+      email: email.value,
+      phone: phone.value,
+      city: city.value
+    };
 
-      fetch(`${API_BASE}/api/customers`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify(customer)
-      })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
-        loadCustomers();
-        companyName.value =
-        contactPerson.value =
-        email.value =
-        phone.value =
-        city.value = "";
-      })
-      .catch(() => {
-        alert("Failed to add customer");
-      });
-    }
+    fetch("https://ox-inventory-1.onrender.com/api/customers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify(customer)
+    })
+    .then(() => {
+      loadCustomers();
+      companyName.value = contactPerson.value = email.value = phone.value = city.value = "";
+    });
+  }
 
-    loadCustomers();
-  </script>
+  loadCustomers();
+</script>
+
 
 </body>
 </html>

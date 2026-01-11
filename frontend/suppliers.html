@@ -58,7 +58,6 @@
 
   <script>
     const API_BASE = "https://ox-inventory-1.onrender.com";
-    const token = localStorage.getItem("token");
 
     function logout() {
       localStorage.removeItem("token");
@@ -68,32 +67,32 @@
     function loadSuppliers() {
       fetch(`${API_BASE}/api/suppliers`, {
         headers: {
-          "Authorization": "Bearer " + token
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => {
-        const table = document.getElementById("supplierTable");
-        table.innerHTML = "";
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(data => {
+          const table = document.getElementById("supplierTable");
+          table.innerHTML = "";
 
-        data.forEach(s => {
-          table.innerHTML += `
-            <tr>
-              <td>${s.supplierName}</td>
-              <td>${s.country}</td>
-              <td>${s.contactPerson}</td>
-              <td>${s.email}</td>
-              <td>${s.phone}</td>
-            </tr>
-          `;
+          data.forEach(s => {
+            table.innerHTML += `
+              <tr>
+                <td>${s.supplierName}</td>
+                <td>${s.country}</td>
+                <td>${s.contactPerson}</td>
+                <td>${s.email}</td>
+                <td>${s.phone}</td>
+              </tr>
+            `;
+          });
+        })
+        .catch(() => {
+          alert("Failed to load suppliers");
         });
-      })
-      .catch(() => {
-        alert("Failed to load suppliers");
-      });
     }
 
     function addSupplier() {
@@ -109,25 +108,25 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify(supplier)
       })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
-        loadSuppliers();
-        supplierName.value =
-        country.value =
-        contactPerson.value =
-        email.value =
-        phone.value = "";
-      })
-      .catch(() => {
-        alert("Failed to add supplier");
-      });
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(() => {
+          loadSuppliers();
+          supplierName.value = "";
+          country.value = "";
+          contactPerson.value = "";
+          email.value = "";
+          phone.value = "";
+        })
+        .catch(() => {
+          alert("Failed to add supplier");
+        });
     }
 
     loadSuppliers();

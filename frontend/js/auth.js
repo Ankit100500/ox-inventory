@@ -14,12 +14,7 @@ function login() {
     },
     body: JSON.stringify({ email, password })
   })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Invalid credentials");
-      }
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       if (data.token) {
         localStorage.setItem("token", data.token);
@@ -28,9 +23,7 @@ function login() {
         error.innerText = "Invalid email or password";
       }
     })
-    .catch(err => {
-      error.innerText =
-        "Server is waking up or credentials are wrong. Try again in 10 seconds.";
-      console.error(err);
+    .catch(() => {
+      error.innerText = "Server is waking up. Try again in 10 seconds.";
     });
 }

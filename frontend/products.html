@@ -4,77 +4,19 @@
   <meta charset="UTF-8" />
   <title>Products | OX Connections</title>
   <link rel="stylesheet" href="css/style.css" />
-  <script src="js/protect.js"></script>
-</head>
-
-<body>
-
-  <!-- HEADER -->
-  <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
-    <h2>📦 Products</h2>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <!-- NAV -->
-  <div style="margin:20px; background:#fff; padding:15px; border-radius:10px;">
-    <a href="dashboard.html">Dashboard</a> |
-    <a href="products.html">Products</a> |
-    <a href="orders.html">Orders</a> |
-    <a href="customers.html">Customers</a> |
-    <a href="suppliers.html">Suppliers</a> |
-    <a href="reports.html">Reports</a>
-  </div>
-
-  <!-- ADD PRODUCT -->
-  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
-    <h3>Add Product</h3>
-
-    <input id="name" placeholder="Product Name" />
-    <input id="category" placeholder="Category" />
-    <input id="brand" placeholder="Brand" />
-    <input id="price" type="number" placeholder="Price" />
-    <input id="stock" type="number" placeholder="Stock" />
-
-    <br><br>
-    <button onclick="addProduct()">Add Product</button>
-  </div>
-
-  <!-- PRODUCT LIST -->
-  <div style="margin:20px; background:#fff; padding:20px; border-radius:10px;">
-    <h3>Product List</h3>
-    <table border="1" width="100%" cellpadding="10">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Category</th>
-          <th>Brand</th>
-          <th>Price (₹)</th>
-          <th>Stock</th>
-        </tr>
-      </thead>
-      <tbody id="productTable"></tbody>
-    </table>
-  </div>
-
   <script>
-    const API_BASE = "https://ox-inventory-1.onrender.com";
-    const token = localStorage.getItem("token");
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+  }
 
-    function logout() {
-      localStorage.removeItem("token");
-      window.location.href = "login.html";
-    }
-
-    function loadProducts() {
-      fetch(`${API_BASE}/api/products`, {
-        headers: {
-          "Authorization": "Bearer " + token
-        }
-      })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
+  function loadProducts() {
+    fetch("https://ox-inventory-1.onrender.com/api/products", {
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      }
+    })
+      .then(res => res.json())
       .then(data => {
         const table = document.getElementById("productTable");
         table.innerHTML = "";
@@ -90,48 +32,36 @@
             </tr>
           `;
         });
-      })
-      .catch(() => {
-        alert("Failed to load products");
+        
       });
-    }
+  }
 
-    function addProduct() {
-      const product = {
-        name: name.value,
-        category: category.value,
-        brand: brand.value,
-        price: price.value,
-        stock: stock.value
-      };
+  function addProduct() {
+    const product = {
+      name: name.value,
+      category: category.value,
+      brand: brand.value,
+      price: price.value,
+      stock: stock.value
+    };
 
-      fetch(`${API_BASE}/api/products`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify(product)
-      })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
-        loadProducts();
-        name.value =
-        category.value =
-        brand.value =
-        price.value =
-        stock.value = "";
-      })
-      .catch(() => {
-        alert("Failed to add product");
-      });
-    }
+    fetch("https://ox-inventory-1.onrender.com/api/products", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify(product)
+    })
+    .then(() => {
+      loadProducts();
+      name.value = category.value = brand.value = price.value = stock.value = "";
+    });
+  }
 
-    loadProducts();
-  </script>
+  loadProducts();
+</script>
+
 
 </body>
 </html>

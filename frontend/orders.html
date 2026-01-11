@@ -63,7 +63,6 @@
 
   <script>
     const API_BASE = "https://ox-inventory-1.onrender.com";
-    const token = localStorage.getItem("token");
 
     function logout() {
       localStorage.removeItem("token");
@@ -73,32 +72,32 @@
     function loadOrders() {
       fetch(`${API_BASE}/api/orders`, {
         headers: {
-          "Authorization": "Bearer " + token
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         }
       })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(data => {
-        const table = document.getElementById("orderTable");
-        table.innerHTML = "";
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(data => {
+          const table = document.getElementById("orderTable");
+          table.innerHTML = "";
 
-        data.forEach(o => {
-          table.innerHTML += `
-            <tr>
-              <td>${o.orderId}</td>
-              <td>${o.customer}</td>
-              <td>${o.date}</td>
-              <td>₹${o.totalAmount}</td>
-              <td>${o.status}</td>
-            </tr>
-          `;
+          data.forEach(o => {
+            table.innerHTML += `
+              <tr>
+                <td>${o.orderId}</td>
+                <td>${o.customer}</td>
+                <td>${o.date}</td>
+                <td>₹${o.totalAmount}</td>
+                <td>${o.status}</td>
+              </tr>
+            `;
+          });
+        })
+        .catch(() => {
+          alert("Failed to load orders");
         });
-      })
-      .catch(() => {
-        alert("Failed to load orders");
-      });
     }
 
     function addOrder() {
@@ -114,25 +113,25 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + token
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify(order)
       })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => {
-        loadOrders();
-        orderId.value =
-        customer.value =
-        date.value =
-        totalAmount.value = "";
-        status.value = "Pending";
-      })
-      .catch(() => {
-        alert("Failed to add order");
-      });
+        .then(res => {
+          if (!res.ok) throw new Error();
+          return res.json();
+        })
+        .then(() => {
+          loadOrders();
+          orderId.value = "";
+          customer.value = "";
+          date.value = "";
+          totalAmount.value = "";
+          status.value = "Pending";
+        })
+        .catch(() => {
+          alert("Failed to add order");
+        });
     }
 
     loadOrders();
