@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
   <!-- HEADER -->
   <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
     <h2>👤 Customers</h2>
@@ -56,29 +57,40 @@
   </div>
 
   <script>
+    const API_BASE = "https://ox-inventory-1.onrender.com";
+    const token = localStorage.getItem("token");
+
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "login.html";
     }
 
     function loadCustomers() {
-      fetch("http://localhost:5000/api/customers")
-        .then(res => res.json())
-        .then(data => {
-          const table = document.getElementById("customerTable");
-          table.innerHTML = "";
-          data.forEach(c => {
-            table.innerHTML += `
-              <tr>
-                <td>${c.companyName}</td>
-                <td>${c.contactPerson}</td>
-                <td>${c.email}</td>
-                <td>${c.phone}</td>
-                <td>${c.city}</td>
-              </tr>
-            `;
-          });
+      fetch(`${API_BASE}/api/customers`, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const table = document.getElementById("customerTable");
+        table.innerHTML = "";
+
+        data.forEach(c => {
+          table.innerHTML += `
+            <tr>
+              <td>${c.companyName}</td>
+              <td>${c.contactPerson}</td>
+              <td>${c.email}</td>
+              <td>${c.phone}</td>
+              <td>${c.city}</td>
+            </tr>
+          `;
         });
+      })
+      .catch(() => {
+        alert("Failed to load customers");
+      });
     }
 
     function addCustomer() {
@@ -90,18 +102,33 @@
         city: city.value
       };
 
-      fetch("http://localhost:5000/api/customers", {
+      fetch(`${API_BASE}/api/customers`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
         body: JSON.stringify(customer)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
       })
       .then(() => {
         loadCustomers();
-        companyName.value = contactPerson.value = email.value = phone.value = city.value = "";
+        companyName.value =
+        contactPerson.value =
+        email.value =
+        phone.value =
+        city.value = "";
+      })
+      .catch(() => {
+        alert("Failed to add customer");
       });
     }
 
     loadCustomers();
   </script>
+
 </body>
 </html>

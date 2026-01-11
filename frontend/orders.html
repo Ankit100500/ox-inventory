@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
   <!-- HEADER -->
   <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
     <h2>🧾 Orders</h2>
@@ -61,29 +62,43 @@
   </div>
 
   <script>
+    const API_BASE = "https://ox-inventory-1.onrender.com";
+    const token = localStorage.getItem("token");
+
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "login.html";
     }
 
     function loadOrders() {
-      fetch("http://localhost:5000/api/orders")
-        .then(res => res.json())
-        .then(data => {
-          const table = document.getElementById("orderTable");
-          table.innerHTML = "";
-          data.forEach(o => {
-            table.innerHTML += `
-              <tr>
-                <td>${o.orderId}</td>
-                <td>${o.customer}</td>
-                <td>${o.date}</td>
-                <td>₹${o.totalAmount}</td>
-                <td>${o.status}</td>
-              </tr>
-            `;
-          });
+      fetch(`${API_BASE}/api/orders`, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        const table = document.getElementById("orderTable");
+        table.innerHTML = "";
+
+        data.forEach(o => {
+          table.innerHTML += `
+            <tr>
+              <td>${o.orderId}</td>
+              <td>${o.customer}</td>
+              <td>${o.date}</td>
+              <td>₹${o.totalAmount}</td>
+              <td>${o.status}</td>
+            </tr>
+          `;
         });
+      })
+      .catch(() => {
+        alert("Failed to load orders");
+      });
     }
 
     function addOrder() {
@@ -95,19 +110,33 @@
         status: status.value
       };
 
-      fetch("http://localhost:5000/api/orders", {
+      fetch(`${API_BASE}/api/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
         body: JSON.stringify(order)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
       })
       .then(() => {
         loadOrders();
-        orderId.value = customer.value = date.value = totalAmount.value = "";
+        orderId.value =
+        customer.value =
+        date.value =
+        totalAmount.value = "";
         status.value = "Pending";
+      })
+      .catch(() => {
+        alert("Failed to add order");
       });
     }
 
     loadOrders();
   </script>
+
 </body>
 </html>

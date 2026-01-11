@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
   <!-- HEADER -->
   <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
     <h2>📦 Products</h2>
@@ -33,6 +34,7 @@
     <input id="brand" placeholder="Brand" />
     <input id="price" type="number" placeholder="Price" />
     <input id="stock" type="number" placeholder="Stock" />
+
     <br><br>
     <button onclick="addProduct()">Add Product</button>
   </div>
@@ -46,7 +48,7 @@
           <th>Name</th>
           <th>Category</th>
           <th>Brand</th>
-          <th>Price</th>
+          <th>Price (₹)</th>
           <th>Stock</th>
         </tr>
       </thead>
@@ -55,29 +57,43 @@
   </div>
 
   <script>
+    const API_BASE = "https://ox-inventory-1.onrender.com";
+    const token = localStorage.getItem("token");
+
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "login.html";
     }
 
     function loadProducts() {
-      fetch("http://localhost:5000/api/products")
-        .then(res => res.json())
-        .then(data => {
-          const table = document.getElementById("productTable");
-          table.innerHTML = "";
-          data.forEach(p => {
-            table.innerHTML += `
-              <tr>
-                <td>${p.name}</td>
-                <td>${p.category}</td>
-                <td>${p.brand}</td>
-                <td>₹${p.price}</td>
-                <td>${p.stock}</td>
-              </tr>
-            `;
-          });
+      fetch(`${API_BASE}/api/products`, {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        const table = document.getElementById("productTable");
+        table.innerHTML = "";
+
+        data.forEach(p => {
+          table.innerHTML += `
+            <tr>
+              <td>${p.name}</td>
+              <td>${p.category}</td>
+              <td>${p.brand}</td>
+              <td>₹${p.price}</td>
+              <td>${p.stock}</td>
+            </tr>
+          `;
         });
+      })
+      .catch(() => {
+        alert("Failed to load products");
+      });
     }
 
     function addProduct() {
@@ -89,18 +105,33 @@
         stock: stock.value
       };
 
-      fetch("http://localhost:5000/api/products", {
+      fetch(`${API_BASE}/api/products`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
         body: JSON.stringify(product)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
       })
       .then(() => {
         loadProducts();
-        name.value = category.value = brand.value = price.value = stock.value = "";
+        name.value =
+        category.value =
+        brand.value =
+        price.value =
+        stock.value = "";
+      })
+      .catch(() => {
+        alert("Failed to add product");
       });
     }
 
     loadProducts();
   </script>
+
 </body>
 </html>

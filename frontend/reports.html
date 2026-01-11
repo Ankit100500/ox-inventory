@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
   <!-- HEADER -->
   <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between;">
     <h2>📊 Reports</h2>
@@ -50,33 +51,48 @@
   </div>
 
   <script>
+    const API_BASE = "https://ox-inventory-1.onrender.com";
+    const token = localStorage.getItem("token");
+
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "login.html";
     }
 
-    fetch("http://localhost:5000/api/reports")
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("totalRevenue").innerText = data.totalRevenue;
-        document.getElementById("totalProducts").innerText = data.totalProducts;
-        document.getElementById("lowStockCount").innerText = data.lowStockCount;
-        document.getElementById("pendingOrders").innerText = data.pendingOrders;
-        document.getElementById("completedOrders").innerText = data.completedOrders;
+    fetch(`${API_BASE}/api/reports`, {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then(data => {
+      document.getElementById("totalRevenue").innerText = data.totalRevenue;
+      document.getElementById("totalProducts").innerText = data.totalProducts;
+      document.getElementById("lowStockCount").innerText = data.lowStockCount;
+      document.getElementById("pendingOrders").innerText = data.pendingOrders;
+      document.getElementById("completedOrders").innerText = data.completedOrders;
 
-        const table = document.getElementById("lowStockTable");
-        table.innerHTML = "";
-        data.lowStockProducts.forEach(p => {
-          table.innerHTML += `
-            <tr>
-              <td>${p.name}</td>
-              <td>${p.category}</td>
-              <td>${p.brand}</td>
-              <td>${p.stock}</td>
-            </tr>
-          `;
-        });
+      const table = document.getElementById("lowStockTable");
+      table.innerHTML = "";
+
+      data.lowStockProducts.forEach(p => {
+        table.innerHTML += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.category}</td>
+            <td>${p.brand}</td>
+            <td>${p.stock}</td>
+          </tr>
+        `;
       });
+    })
+    .catch(() => {
+      alert("Failed to load reports");
+    });
   </script>
+
 </body>
 </html>

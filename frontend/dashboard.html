@@ -8,6 +8,7 @@
 </head>
 
 <body>
+
   <!-- HEADER -->
   <div style="background:#fff; padding:15px 30px; display:flex; justify-content:space-between; align-items:center;">
     <h2 style="margin:0;">🔌 OX Connections - Inventory Management</h2>
@@ -37,19 +38,33 @@
   </div>
 
   <script>
+    const API_BASE = "https://ox-inventory-1.onrender.com";
+    const token = localStorage.getItem("token");
+
     function logout() {
       localStorage.removeItem("token");
       window.location.href = "login.html";
     }
 
-    fetch("http://localhost:5000/api/reports")
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("totalProducts").innerText = data.totalProducts;
-        document.getElementById("lowStock").innerText = data.lowStockCount;
-        document.getElementById("pendingOrders").innerText = data.pendingOrders;
-        document.getElementById("completedOrders").innerText = data.completedOrders;
-      });
+    fetch(`${API_BASE}/api/reports`, {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Unauthorized");
+      return res.json();
+    })
+    .then(data => {
+      document.getElementById("totalProducts").innerText = data.totalProducts;
+      document.getElementById("lowStock").innerText = data.lowStockCount;
+      document.getElementById("pendingOrders").innerText = data.pendingOrders;
+      document.getElementById("completedOrders").innerText = data.completedOrders;
+    })
+    .catch(() => {
+      alert("Failed to load dashboard data");
+    });
   </script>
+
 </body>
 </html>
